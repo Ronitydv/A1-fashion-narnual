@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { initDb, getProducts, getCart, saveCart, getWishlist, saveWishlist, getCurrentUser, setCurrentUser, createOrder } from './utils/db';
+import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
+import { initDb, getProducts, getCart, saveCart, getWishlist, saveWishlist, getCurrentUser, setCurrentUser, createOrder, registerTokenGetter, syncClerkUser } from './utils/db';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import LoginModal from './components/LoginModal';
@@ -16,6 +17,10 @@ import Checkout from './pages/Checkout';
 import UserAccount from './pages/UserAccount';
 
 export default function App() {
+  const { user: clerkUser, isLoaded: clerkUserLoaded, isSignedIn } = useUser();
+  const { getToken, signOut: clerkSignOut } = useAuth();
+  const { openSignIn } = useClerk();
+
   const [activePage, setActivePage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState('1');
   
@@ -34,6 +39,36 @@ export default function App() {
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [billingDetails, setBillingDetails] = useState(null);
 
+  // Register Clerk Token Getter
+  useEffect(() => {
+    registerTokenGetter(async () => {
+      try {
+        return await getToken();
+      } catch (err) {
+        return null;
+      }
+    });
+  }, [getToken]);
+
+  // Synchronize Clerk user state with backend database
+  useEffect(() => {
+    const handleSync = async () => {
+      if (isSignedIn && clerkUser) {
+        try {
+          const syncedUser = await syncClerkUser(clerkUser);
+          setUser(syncedUser);
+        } catch (err) {
+          console.error("Clerk user sync failed:", err);
+        }
+      } else if (!isSignedIn && clerkUserLoaded) {
+        // If logged out on Clerk, reset local user
+        setUser(null);
+        setCurrentUser(null);
+      }
+    };
+    handleSync();
+  }, [isSignedIn, clerkUser, clerkUserLoaded]);
+
   // Initial Seeding & Mounting
   useEffect(() => {
     initDb();
@@ -46,7 +81,12 @@ export default function App() {
     fetchInitialData();
     setCart(getCart());
     setWishlist(getWishlist());
-    setUser(getCurrentUser());
+
+    // Fallback to local cached user if not using/signed in to Clerk yet
+    const localUser = getCurrentUser();
+    if (localUser && !isSignedIn) {
+      setUser(localUser);
+    }
 
     // Listen to global product view requests
     const handleViewProductEvent = (e) => {
@@ -153,13 +193,21 @@ export default function App() {
     alert(`Successfully verified! Welcome, ${loggedInUser.name}.`);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      if (isSignedIn) {
+        await clerkSignOut();
+      }
+    } catch (err) {
+      console.error("Clerk sign out failed:", err);
+    }
     setCurrentUser(null);
     setUser(null);
     setAppliedCoupon(null);
     alert('Logged out from profile successfully.');
     navigateToPage('home');
   };
+
 
   // Trigger checkout payment modal
   const handleTriggerPayment = (amount, shippingInfo) => {
@@ -193,6 +241,14 @@ export default function App() {
       navigateToPage('account');
     } catch (err) {
       alert(err.message || 'Failed to complete order.');
+    }
+  };
+
+  const handleOpenLogin = () => {
+    if (openSignIn) {
+      openSignIn();
+    } else {
+      setLoginOpen(true);
     }
   };
 
@@ -257,7 +313,7 @@ export default function App() {
             cart={cart}
             appliedCoupon={appliedCoupon}
             user={user}
-            onOpenLogin={() => setLoginOpen(true)}
+            onOpenLogin={handleOpenLogin}
             onOpenPayment={handleTriggerPayment}
             setActivePage={navigateToPage}
           />
@@ -267,7 +323,7 @@ export default function App() {
           <UserAccount
             user={user}
             onLogout={handleLogout}
-            onOpenLogin={() => setLoginOpen(true)}
+            onOpenLogin={handleOpenLogin}
             setActivePage={navigateToPage}
           />
         );
@@ -294,7 +350,7 @@ export default function App() {
         activePage={activePage}
         setActivePage={navigateToPage}
         user={user}
-        onOpenLogin={() => setLoginOpen(true)}
+        onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
       />
 

@@ -7,10 +7,28 @@ const api = axios.create({
   baseURL: API_URL
 });
 
-// Request Interceptor to attach JWT
+let tokenGetter = null;
+
+export const registerTokenGetter = (fn) => {
+  tokenGetter = fn;
+};
+
+// Request Interceptor to attach JWT (supports async Clerk token retrieval)
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('a1_jwt');
+  async (config) => {
+    let token = null;
+    if (tokenGetter) {
+      try {
+        token = await tokenGetter();
+      } catch (err) {
+        console.error("Error retrieving Clerk token:", err);
+      }
+    }
+    
+    if (!token) {
+      token = localStorage.getItem('a1_jwt');
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -18,6 +36,24 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+export const syncClerkUser = async (clerkUser) => {
+  try {
+    const res = await api.post('/auth/sync', {
+      name: clerkUser.fullName || clerkUser.username || '',
+      email: clerkUser.primaryEmailAddress?.emailAddress || '',
+      phone: clerkUser.primaryPhoneNumber?.phoneNumber || '',
+      avatar: clerkUser.imageUrl || ''
+    });
+    if (res.data.success) {
+      setCurrentUser(res.data.user);
+      return res.data.user;
+    }
+  } catch (error) {
+    console.error("Failed to sync Clerk user with backend:", error);
+    throw new Error(error.response?.data?.message || 'Sync failed.');
+  }
+};
 
 // Exported database hooks matching existing frontend calls
 export const initDb = async () => {

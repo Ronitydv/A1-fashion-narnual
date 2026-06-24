@@ -1,29 +1,86 @@
 import React, { useState, useEffect } from 'react';
+import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginModal from './components/LoginModal';
-import { getCurrentUser, setCurrentUser } from './utils/db';
+import { getCurrentUser, setCurrentUser, registerTokenGetter, syncClerkUser } from './utils/db';
 import { ShieldCheck, LogOut, Lock, UserCheck } from 'lucide-react';
 
 export default function AdminApp() {
+  const { user: clerkUser, isLoaded: clerkUserLoaded, isSignedIn } = useUser();
+  const { getToken, signOut: clerkSignOut } = useAuth();
+  const { openSignIn } = useClerk();
+
   const [user, setUser] = useState(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Register Clerk Token Getter
   useEffect(() => {
-    setUser(getCurrentUser());
-    setLoading(false);
-  }, []);
+    registerTokenGetter(async () => {
+      try {
+        return await getToken();
+      } catch (err) {
+        return null;
+      }
+    });
+  }, [getToken]);
+
+  // Synchronize Clerk user state with backend database
+  useEffect(() => {
+    const handleSync = async () => {
+      if (isSignedIn && clerkUser) {
+        try {
+          const syncedUser = await syncClerkUser(clerkUser);
+          setUser(syncedUser);
+        } catch (err) {
+          console.error("Admin user sync failed:", err);
+        }
+        setLoading(false);
+      } else if (clerkUserLoaded) {
+        if (!isSignedIn) {
+          setUser(null);
+          setCurrentUser(null);
+        }
+        setLoading(false);
+      }
+    };
+    handleSync();
+  }, [isSignedIn, clerkUser, clerkUserLoaded]);
+
+  // Fallback to local cached user if not using/signed in to Clerk yet
+  useEffect(() => {
+    if (!isSignedIn && !clerkUserLoaded) {
+      setUser(getCurrentUser());
+      setLoading(false);
+    }
+  }, [isSignedIn, clerkUserLoaded]);
 
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser);
     setLoginOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      if (isSignedIn) {
+        await clerkSignOut();
+      }
+    } catch (err) {
+      console.error("Admin Clerk sign out failed:", err);
+    }
     setCurrentUser(null);
     setUser(null);
     alert('Logged out from Admin successfully.');
   };
+
+  const handleOpenLogin = () => {
+    if (openSignIn) {
+      openSignIn();
+    } else {
+      setLoginOpen(true);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -65,7 +122,7 @@ export default function AdminApp() {
           </div>
           <h1>A1 Fashion Secure Admin</h1>
           <p>This is a private administration panel. Authorized owners only. Please sign in to verify your access credentials.</p>
-          <button className="btn-primary" onClick={() => setLoginOpen(true)}>
+          <button className="btn-primary" onClick={handleOpenLogin}>
             Sign In / Verify OTP
           </button>
         </div>
@@ -136,7 +193,7 @@ export default function AdminApp() {
             <button className="btn-outline" onClick={handleLogout}>
               <LogOut size={14} /> Log Out
             </button>
-            <button className="btn-primary" onClick={() => setLoginOpen(true)}>
+            <button className="btn-primary" onClick={handleOpenLogin}>
               Switch Account
             </button>
           </div>

@@ -27,8 +27,8 @@ const ProductSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  phone: { type: String, required: true, unique: true },
-  email: { type: String, required: true },
+  phone: { type: String },
+  email: { type: String },
   avatar: { type: String },
   role: { type: String, default: 'customer' },
   walletBalance: { type: Number, default: 5000 },
