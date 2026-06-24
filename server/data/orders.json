@@ -1,0 +1,37 @@
+[
+  {
+    "id": "o_1782301080794",
+    "orderId": "A1-607773",
+    "userId": "u_1782301033335",
+    "items": [
+      {
+        "id": "2",
+        "title": "Oversized Premium Hoodie",
+        "price": 1899,
+        "category": "hoodies",
+        "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&auto=format&fit=crop&q=80",
+        "size": "M",
+        "color": "Charcoal Grey",
+        "quantity": 1,
+        "inStock": 3
+      }
+    ],
+    "totalAmount": 2049,
+    "shippingDetails": {
+      "firstName": "TYTYT",
+      "lastName": "TYTYTY",
+      "address": "102, Premium Heights, Link Road",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "zip": "400053",
+      "phone": "9999999999",
+      "email": "customer@a1fashion.in",
+      "notes": "FF "
+    },
+    "paymentMethod": "Online UPI/Card Secure pay",
+    "paymentStatus": "Paid",
+    "paymentId": "TXN-467014792",
+    "status": "Processing",
+    "date": "24/6/2026"
+  }
+]

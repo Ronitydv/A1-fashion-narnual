@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Colors from custom palette */
+  --color-primary: #657166; /* Slate Forest Green-Grey */
+  --color-primary-hover: #4c544d;
+  --color-primary-light: #DAEBE3; /* Mint Light Grey-Green */
+  --color-secondary: #99CDD8; /* Sky Blue */
+  --color-accent: #F3C3B2; /* Soft Peach/Pink */
+  --color-bg-warm: #FDE8D3; /* Creamy Peach/Beige */
+  --color-sage: #CFD6C4; /* Sage Green */
+  
+  --color-heading: #3a423b;
+  --color-body: #5c645e;
+  --color-body-dark: #3b423c;
+  --color-bg-light: #f6faf8;
+  --color-bg-white: #ffffff;
+  --color-border: #CFD6C4;
+  --color-accent-orange: #f09c7a;
+  --color-success: #3bb77e;
+  --color-warning: #ffd15c;
+  --color-danger: #ff4d4f;
+  
+  /* Fonts */
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  
+  /* Layout & Animations - Rounder Corners */
+  --border-radius-sm: 12px;
+  --border-radius-md: 24px;
+  --border-radius-lg: 36px;
+  --border-radius-pill: 50px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.1);
+  --transition-fast: all 0.2s ease-in-out;
+  --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-body);
+  background: linear-gradient(135deg, #DAEBE3 0%, #FDE8D3 50%, #99CDD8 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  padding-bottom: 0; /* will adjust dynamically on mobile via CSS for bottom nav */
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition-fast);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--color-heading);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.badge-hot { background-color: var(--color-accent); }
+.badge-new { background-color: var(--color-success); }
+.badge-sale { background-color: var(--color-accent-orange); }
+.badge-warning { background-color: var(--color-danger); }
+.badge-best { background-color: #3f51b5; }
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-normal);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 11px 26px;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-normal);
+}
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Floating WhatsApp Button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #25d366;
+  color: white;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 999;
+  font-size: 24px;
+  transition: var(--transition-normal);
+}
+.whatsapp-float:hover {
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-fade {
+  animation: fadeIn 0.4s ease-in-out forwards;
+}
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.section-padding { padding: 60px 0; }
+
+/* Grid Systems */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* Mega Responsive Tweaks */
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(3, 1fr); }
+  .section-padding { padding: 40px 0; }
+}
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 65px; /* Leave space for bottom nav bar on mobile */
+  }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .whatsapp-float {
+    bottom: 85px; /* Raise above mobile bottom bar */
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+}
+
+/* Glassmorphism overrides for premium container cards */
+.cart-summary, .checkout-form, .wishlist-container, .product-info-panel, .user-profile-card, 
+.admin-card, .value-card, .login-modal-content, .payment-modal-content, .cart-table-container, 
+.checkout-summary, .order-card, .review-item, .coupon-section, .gift-redeem-card, 
+.shipping-tracker-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: var(--border-radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Buttons and inputs general roundness fixes */
+input, select, textarea, button.btn-primary, button.btn-outline, .quick-add-cart-btn {
+  border-radius: var(--border-radius-md) !important;
+}
+.badge {
+  border-radius: var(--border-radius-sm) !important;
+}
+.search-form {
+  border-radius: var(--border-radius-pill) !important;
+}
+

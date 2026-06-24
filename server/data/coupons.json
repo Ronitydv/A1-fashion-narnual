@@ -1,0 +1,29 @@
+[
+  {
+    "id": "c1",
+    "code": "WELCOME10",
+    "discountPercent": 10,
+    "freeShipping": false,
+    "minPurchase": 0,
+    "startDate": "2026-06-01",
+    "endDate": "2027-06-01"
+  },
+  {
+    "id": "c2",
+    "code": "A1STYLE",
+    "discountPercent": 15,
+    "freeShipping": false,
+    "minPurchase": 1999,
+    "startDate": "2026-06-01",
+    "endDate": "2027-06-01"
+  },
+  {
+    "id": "c3",
+    "code": "FREESHIP",
+    "discountPercent": 0,
+    "freeShipping": true,
+    "minPurchase": 1499,
+    "startDate": "2026-06-01",
+    "endDate": "2027-06-01"
+  }
+]

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "u_admin",
+    "name": "Owner Admin",
+    "phone": "9999999999",
+    "email": "admin@a1fashion.in",
+    "role": "admin",
+    "walletBalance": 5000,
+    "walletTransactions": [
+      {
+        "date": "24/06/2026",
+        "desc": "Welcome Bonus",
+        "amount": 5000,
+        "type": "credit"
+      }
+    ]
+  },
+  {
+    "id": "u_1782301033335",
+    "name": "Aman Verma",
+    "email": "aman.verma@gmail.com",
+    "phone": "9876543210",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+    "role": "customer",
+    "walletBalance": 5000,
+    "walletTransactions": [
+      {
+        "date": "24/6/2026",
+        "desc": "Welcome Bonus",
+        "amount": 5000,
+        "type": "credit"
+      }
+    ]
+  }
+]
