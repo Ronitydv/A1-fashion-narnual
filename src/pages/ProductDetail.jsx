@@ -78,6 +78,11 @@ export default function ProductDetail({
     onAddToCart(product, quantity, selectedSize, selectedColor);
   };
 
+  const handleBuyNowClick = () => {
+    onAddToCart(product, quantity, selectedSize, selectedColor);
+    setActivePage('checkout');
+  };
+
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const isWishlisted = wishlist.some(item => item.id === product.id);
 
@@ -192,6 +197,10 @@ export default function ProductDetail({
 
               <button className="btn-primary flex-1-btn" onClick={handleAddToCartClick}>
                 <ShoppingCart size={18} /> Add to Cart
+              </button>
+
+              <button className="btn-buy-now flex-1-btn" onClick={handleBuyNowClick}>
+                ⚡ Buy Now
               </button>
 
               <button 
@@ -656,6 +665,28 @@ export default function ProductDetail({
         .flex-1-btn {
           flex: 1;
         }
+
+        .btn-buy-now {
+          background-color: var(--color-accent);
+          color: var(--color-primary);
+          font-weight: 700;
+          border: none;
+          padding: 12px 24px;
+          border-radius: var(--border-radius-sm);
+          cursor: pointer;
+          transition: var(--transition-normal);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .btn-buy-now:hover {
+          opacity: 0.9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
 
         .wishlist-toggle-btn-detail {
           width: 48px;

@@ -10,6 +10,10 @@ export default function Shop({
   wishlist
 }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const categories = products.length > 0
+    ? [...new Set(products.map(p => p.category.toLowerCase()))]
+    : ['shirts', 'hoodies', 'suits', 'streetwear', 'accessories'];
+
   const [selectedSize, setSelectedSize] = useState('all');
   const [priceRange, setPriceRange] = useState(6000); // Max seed price is ~4599
   const [sortOption, setSortOption] = useState('featured');
@@ -141,46 +145,16 @@ export default function Shop({
                   All Men's Fashion
                 </button>
               </li>
-              <li>
-                <button 
-                  className={selectedCategory === 'shirts' ? 'active' : ''}
-                  onClick={() => setSelectedCategory('shirts')}
-                >
-                  Shirts
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={selectedCategory === 'hoodies' ? 'active' : ''}
-                  onClick={() => setSelectedCategory('hoodies')}
-                >
-                  Hoodies
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={selectedCategory === 'suits' ? 'active' : ''}
-                  onClick={() => setSelectedCategory('suits')}
-                >
-                  Suits / Blazers
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={selectedCategory === 'streetwear' ? 'active' : ''}
-                  onClick={() => setSelectedCategory('streetwear')}
-                >
-                  Streetwear
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={selectedCategory === 'accessories' ? 'active' : ''}
-                  onClick={() => setSelectedCategory('accessories')}
-                >
-                  Accessories
-                </button>
-              </li>
+              {categories.map(cat => (
+                <li key={cat}>
+                  <button 
+                    className={selectedCategory === cat ? 'active' : ''}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 

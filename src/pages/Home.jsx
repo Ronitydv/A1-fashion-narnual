@@ -33,6 +33,19 @@ export default function Home({
 }) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  const categories = products.length > 0
+    ? [...new Set(products.map(p => p.category.toLowerCase()))]
+    : ['shirts', 'hoodies', 'suits', 'streetwear', 'accessories'];
+
+  const CATEGORY_IMAGES = {
+    shirts: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=150&auto=format&fit=crop&q=80",
+    hoodies: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=150&auto=format&fit=crop&q=80",
+    suits: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=150&auto=format&fit=crop&q=80",
+    streetwear: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=150&auto=format&fit=crop&q=80",
+    accessories: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=150&auto=format&fit=crop&q=80",
+    default: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=150&auto=format&fit=crop&q=80"
+  };
+
   useEffect(() => {
     const slideInterval = setInterval(() => {
       setCurrentSlide(prev => (prev === HERO_SLIDES.length - 1 ? 0 : prev + 1));
@@ -123,36 +136,14 @@ export default function Home({
             <p>Find the perfect fit for your distinct vibe</p>
           </div>
           <div className="categories-circle-grid">
-            <div className="category-circle-item" onClick={() => handleCategoryClick('shirts')}>
-              <div className="circle-img-holder">
-                <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=150&auto=format&fit=crop&q=80" alt="Shirts" />
+            {categories.map(cat => (
+              <div key={cat} className="category-circle-item" onClick={() => handleCategoryClick(cat)}>
+                <div className="circle-img-holder">
+                  <img src={CATEGORY_IMAGES[cat] || CATEGORY_IMAGES.default} alt={cat} />
+                </div>
+                <span>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
               </div>
-              <span>Shirts</span>
-            </div>
-            <div className="category-circle-item" onClick={() => handleCategoryClick('hoodies')}>
-              <div className="circle-img-holder">
-                <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=150&auto=format&fit=crop&q=80" alt="Hoodies" />
-              </div>
-              <span>Hoodies</span>
-            </div>
-            <div className="category-circle-item" onClick={() => handleCategoryClick('suits')}>
-              <div className="circle-img-holder">
-                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=150&auto=format&fit=crop&q=80" alt="Suits" />
-              </div>
-              <span>Suits</span>
-            </div>
-            <div className="category-circle-item" onClick={() => handleCategoryClick('streetwear')}>
-              <div className="circle-img-holder">
-                <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=150&auto=format&fit=crop&q=80" alt="Streetwear" />
-              </div>
-              <span>Streetwear</span>
-            </div>
-            <div className="category-circle-item" onClick={() => handleCategoryClick('accessories')}>
-              <div className="circle-img-holder">
-                <img src="https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=150&auto=format&fit=crop&q=80" alt="Accessories" />
-              </div>
-              <span>Accessories</span>
-            </div>
+            ))}
           </div>
         </div>
       </section>

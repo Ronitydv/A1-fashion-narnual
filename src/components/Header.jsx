@@ -8,15 +8,25 @@ export default function Header({
   setActivePage,
   user,
   onOpenLogin,
-  onLogout
+  onLogout,
+  products = [],
+  cartAnimating = false,
+  deliveryLocation = { city: 'Ateli', postcode: '123021', formatted: 'Ronit | Ateli 123021' },
+  onUpdateLocation
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  
-  // Default values matching mockups
+  const [showLocationForm, setShowLocationForm] = useState(false);
+  const [tempCity, setTempCity] = useState(deliveryLocation.city);
+  const [tempPostcode, setTempPostcode] = useState(deliveryLocation.postcode);
+
+  const categories = products.length > 0
+    ? [...new Set(products.map(p => p.category.toLowerCase()))]
+    : ['shirts', 'hoodies', 'suits', 'streetwear', 'accessories'];
+
   const customerName = user ? user.name : "Ronit";
-  const mobileLocation = "Ronit | Straight To Govt High Sc... 123021";
-  const pcLocation = "Ronit, Ateli 123021";
+  const mobileLocation = deliveryLocation.formatted || `${customerName} | Ateli, 123021`;
+  const pcLocation = `${customerName}, ${deliveryLocation.city} ${deliveryLocation.postcode}`;
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -36,7 +46,20 @@ export default function Header({
   };
 
   const handleLocationChange = () => {
-    alert(`Your delivery location is set to: ${user ? user.name : 'Ronit'} | Ateli, 123021`);
+    setTempCity(deliveryLocation.city);
+    setTempPostcode(deliveryLocation.postcode);
+    setShowLocationForm(true);
+  };
+
+  const saveManualLocation = () => {
+    if (!tempCity || !tempPostcode) {
+      alert("Please fill in both City and Postal Code.");
+      return;
+    }
+    if (onUpdateLocation) {
+      onUpdateLocation(tempCity, tempPostcode);
+    }
+    setShowLocationForm(false);
   };
 
   return (
@@ -58,7 +81,7 @@ export default function Header({
               <MapPin size={20} className="pin-icon" />
               <div className="location-text-block">
                 <span className="location-line1">Deliver to {customerName}</span>
-                <span className="location-line2">Ateli 123021</span>
+                <span className="location-line2">{deliveryLocation.city} {deliveryLocation.postcode}</span>
               </div>
             </div>
 
@@ -71,11 +94,11 @@ export default function Header({
                   className="pc-search-select"
                 >
                   <option value="All">All</option>
-                  <option value="Shirts">Shirts</option>
-                  <option value="Hoodies">Hoodies</option>
-                  <option value="Suits">Suits</option>
-                  <option value="Streetwear">Streetwear</option>
-                  <option value="Accessories">Accessories</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat.charAt(0).toUpperCase() + cat.slice(1)}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown size={14} className="select-chevron" />
               </div>
@@ -126,7 +149,7 @@ export default function Header({
               </div>
 
               {/* Cart Counter */}
-              <div className="pc-cart-widget" onClick={() => setActivePage('cart')}>
+              <div className={`pc-cart-widget ${cartAnimating ? 'animate-cart-bounce' : ''}`} onClick={() => setActivePage('cart')}>
                 <div className="cart-icon-wrapper">
                   <span className="cart-badge-count">{cartCount}</span>
                   <ShoppingCart size={24} />
@@ -151,31 +174,13 @@ export default function Header({
                   Shop All
                 </button>
               </li>
-              <li>
-                <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: 'shirts' })), 50); }}>
-                  Shirts
-                </button>
-              </li>
-              <li>
-                <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: 'hoodies' })), 50); }}>
-                  Hoodies
-                </button>
-              </li>
-              <li>
-                <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: 'suits' })), 50); }}>
-                  Suits
-                </button>
-              </li>
-              <li>
-                <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: 'streetwear' })), 50); }}>
-                  Streetwear
-                </button>
-              </li>
-              <li>
-                <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: 'accessories' })), 50); }}>
-                  Accessories
-                </button>
-              </li>
+              {categories.map(cat => (
+                <li key={cat}>
+                  <button onClick={() => { setActivePage('shop'); setTimeout(() => window.dispatchEvent(new CustomEvent('a1_filter_cat', { detail: cat })), 50); }}>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                </li>
+              ))}
             </ul>
             <div className="sub-nav-banner-text">
               🔥 Free Delivery above ₹1,499! Code: <strong>WELCOME10</strong>
@@ -219,7 +224,7 @@ export default function Header({
             </button>
 
             {/* Bag/Cart */}
-            <button className="mobile-action-btn" onClick={() => setActivePage('cart')} title="Cart">
+            <button className={`mobile-action-btn ${cartAnimating ? 'animate-cart-bounce' : ''}`} onClick={() => setActivePage('cart')} title="Cart">
               <ShoppingBag size={22} />
               {cartCount > 0 && <span className="mobile-badge-count">{cartCount}</span>}
             </button>
@@ -764,7 +769,147 @@ export default function Header({
             display: block;
           }
         }
+
+        /* --- LOCATION MODAL --- */
+        .location-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(37, 61, 83, 0.5);
+          backdrop-filter: blur(8px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .location-modal-card {
+          background: white;
+          padding: 30px;
+          border-radius: var(--border-radius-md);
+          width: 100%;
+          max-width: 420px;
+          box-shadow: var(--shadow-lg);
+          border: 1px solid var(--color-border);
+          text-align: center;
+          color: var(--color-body-dark);
+        }
+
+        .location-modal-card h3 {
+          font-family: var(--font-serif);
+          font-size: 20px;
+          margin-bottom: 10px;
+          color: var(--color-heading);
+        }
+
+        .location-modal-card p {
+          font-size: 13px;
+          color: var(--color-body);
+          margin-bottom: 20px;
+          line-height: 1.5;
+        }
+
+        .location-form-inputs {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .location-form-inputs input {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid var(--color-border);
+          border-radius: var(--border-radius-sm);
+          font-size: 14px;
+          outline: none;
+          transition: var(--transition-fast);
+        }
+
+        .location-form-inputs input:focus {
+          border-color: var(--color-primary);
+          box-shadow: 0 0 0 2px rgba(8, 129, 120, 0.15);
+        }
+
+        .location-form-actions {
+          display: flex;
+          gap: 12px;
+        }
+
+        .location-cancel-btn {
+          flex: 1;
+          padding: 12px;
+          border: 1px solid var(--color-border);
+          background: white;
+          color: var(--color-body);
+          font-weight: 600;
+          font-size: 14px;
+          border-radius: var(--border-radius-sm);
+          cursor: pointer;
+        }
+
+        .location-save-btn {
+          flex: 1;
+          padding: 12px;
+          border: none;
+          background: var(--color-primary);
+          color: white;
+          font-weight: 600;
+          font-size: 14px;
+          border-radius: var(--border-radius-sm);
+          cursor: pointer;
+        }
+
+        .location-save-btn:hover {
+          background: var(--color-primary-hover);
+        }
+
+        /* --- CART BOUNCE KEYFRAMES --- */
+        @keyframes cartBounce {
+          0% { transform: scale(1); }
+          30% { transform: scale(1.25) rotate(-8deg); }
+          50% { transform: scale(1.08) rotate(8deg); }
+          70% { transform: scale(1.15) rotate(-4deg); }
+          100% { transform: scale(1); }
+        }
+
+        .animate-cart-bounce {
+          animation: cartBounce 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        }
       `}</style>
+
+      {/* Manual Location Override Form Modal */}
+      {showLocationForm && (
+        <div className="location-modal-overlay">
+          <div className="location-modal-card">
+            <h3>Update Delivery Location</h3>
+            <p>Enter your City and Postal Code below to update your delivery region.</p>
+            <div className="location-form-inputs">
+              <input 
+                type="text" 
+                placeholder="City (e.g. Ateli)" 
+                value={tempCity} 
+                onChange={(e) => setTempCity(e.target.value)} 
+                required
+              />
+              <input 
+                type="text" 
+                placeholder="Postal Code (e.g. 123021)" 
+                value={tempPostcode} 
+                onChange={(e) => setTempPostcode(e.target.value)} 
+                required
+              />
+            </div>
+            <div className="location-form-actions">
+              <button className="location-cancel-btn" onClick={() => setShowLocationForm(false)}>Cancel</button>
+              <button className="location-save-btn" onClick={saveManualLocation}>Save Address</button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
