@@ -6,16 +6,13 @@ const { connectDB } = require('./config/db');
 // Create Express App
 const app = express();
 
-// Connect Database
-connectDB();
-
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Basic Home Route
 app.get('/', (req, res) => {
-  res.send('A1 Fashion API Server is running...');
+  res.send('A1 Fashion API Server is running with MongoDB...');
 });
 
 // Configure Route Handlers
@@ -33,8 +30,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running in production on port ${PORT}`);
-});
+// Connect Database & Start Server
+connectDB()
+  .then(() => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running in production on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("Critical: Database startup failed:", err.message);
+    process.exit(1);
+  });
